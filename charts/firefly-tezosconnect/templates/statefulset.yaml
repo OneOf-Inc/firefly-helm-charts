@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "firefly-tezosconnect.fullname" . }}
+  labels:
+    {{- include "firefly-tezosconnect.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ include "firefly-tezosconnect.fullname" . }}
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      {{- include "firefly-tezosconnect.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "firefly-tezosconnect.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.initContainers }}
+      initContainers:
+        {{- tpl .Values.initContainers . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: tezosconnect
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "v%s" .Chart.AppVersion) }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - -f
+            - /etc/tezosconnect/config.yaml
+          {{- if .Values.extraEnv }}
+          env:
+            {{- toYaml .Values.extraEnv | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            failureThreshold: 5
+            successThreshold: 1
+            periodSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            failureThreshold: 10
+            successThreshold: 3
+            periodSeconds: 3
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /var/run/leveldb
+              name: tezosconnect
+            - mountPath: /etc/tezosconnect/config.yaml
+              name: config
+              subPath: config.yaml
+      {{- if .Values.extraContainers }}
+        {{- tpl .Values.extraContainers . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: config
+          secret:
+            secretName: "{{ include "firefly-tezosconnect.fullname" . }}-config"
+  volumeClaimTemplates:
+  {{- if eq .Values.config.persistence.type "leveldb" }}
+    - metadata:
+        name: tezosconnect
+      {{- with .Values.persistentVolume }}
+        {{- with .annotations }}
+        annotations:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      spec:
+        accessModes:
+          {{- toYaml .accessModes | nindent 10 }}
+        storageClassName: {{ .storageClass }}
+        resources:
+          requests:
+            storage: {{ .size }}
+      {{- end }}
+  {{- end }}
+  {{- if .Values.extraVolumeClaimTemplates }}
+    {{- tpl .Values.extraVolumeClaimTemplates . | nindent 4 }}
+  {{- end }}

@@ -1,0 +1,76 @@
+fullnameOverride: "tezosconnect-public"
+
+service:
+  type: ClusterIP
+  port: 5000
+
+podAnnotations: {}
+
+imagePullSecrets: []
+
+podSecurityContext: {}
+
+securityContext: {}
+
+extraEnv: []
+
+initContainers: ""
+extraContainers: ""
+extraVolumeClaimTemplates: ""
+
+resources: {}
+
+nodeSelector: {}
+
+affinity: {}
+
+tolerations: {}
+
+persistentVolume:
+  accessModes:
+    - ReadWriteOnce
+  annotations: {}
+  size: 2Gi
+  storageClass: ""
+
+image:
+  repository: http://989259452539.dkr.ecr.us-west-2.amazonaws.com/oneof-tezosconnect-yfn0shared0firefly:latest
+  pullPolicy: IfNotPresent
+  # tag: ""
+
+# see https://github.com/OneOf-Inc/firefly-tezosconnect/blob/main/config.md for more info
+config:
+  log:
+    level: debug
+    jsonEnabled: false
+
+  confirmations:
+    required: 0
+
+  persistence:
+    type: leveldb
+    leveldb:
+      maxHandles: 100
+      syncWrites: false
+    templateOverride: ""
+
+  connector:
+    blockchain:
+      rpc: "https://ghostnet.ecadinfra.com"
+      network: ghostnet
+      signatory: ""
+
+  policyEngine: |
+    policyengine.simple:
+      fixedGasPrice: "0"
+      resubmitInterval: 5m
+      gasOracle:
+        mode: fixed
+
+  policyLoop: {}
+
+  transactions: {}
+
+  webhooks: {}
+
+  eventstreams: {}

@@ -1,0 +1,15 @@
+apiVersion: v2
+name: firefly-tezosconnect
+description: |
+  A Helm chart for deploying the FireFly TezosConnect microservice to Kubernetes.
+  Requires a running instance of FireFly and a persistent volume for managing its
+  transaction state.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+maintainers:
+  - name: denisandreenko
+    email: denis@oneof.com
+  - name: correyschultz
+    email: correy@oneof.com
