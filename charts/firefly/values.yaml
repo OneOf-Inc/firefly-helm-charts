@@ -148,6 +148,21 @@ config:
   # The EVMConnect topic to use for blockchain event subscriptions
   evmconnectTopic: 0
 
+   # The URL of the TezosConnect API and WS server to use for the blockchain plugin of type `tezos`
+  tezosconnectUrl: ""
+
+  # The basic auth username to use for authenticating to TezosConnect
+  tezosconnectUsername: ""
+
+  # The basic auth password to use for authenticating to TezosConnect
+  tezosconnectPassword: ""
+
+  # Enables retries when communicating with TezosConnect
+  tezosconnectRetry: true
+
+  # The TezosConnect topic to use for blockchain event subscriptions
+  tezosconnectTopic: 0
+
   # The URL of the Fabconnect API and WS server to use for the blockchain plugin of type `fabric`
   fabconnectUrl: ""
 
@@ -195,6 +210,10 @@ config:
   extraBlockchains: ""
 
   extraNamespaces: ""
+    # - name: tezos
+    #   description: Gateway namespace for Tezos
+    #   defaultkey: tz1SfRoaCkrBkXqTzhz67QYVPJAU9Y2g48kq
+    #   plugins: [database0, tezos0]
 
   # Instead of using the provided config template from _helpers.tpl, users can use to customize the config using their own global values, etc.
   # See the firefly.coreConfig helper for an example of a Go-templated config file that could be provided here as a multiline string.
@@ -655,4 +674,7 @@ sandbox:
   affinity: {}
 
 evmconnect:
+  enabled: false
+
+tezosconnect:
   enabled: false

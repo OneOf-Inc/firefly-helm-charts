@@ -40,3 +40,9 @@ dependencies:
     alias: evmconnect
     condition: evmconnect.enabled
     version: "0.6.0"
+
+  - name: firefly-tezosconnect
+    repository: "file://../firefly-tezosconnect"
+    alias: tezosconnect
+    condition: tezosconnect.enabled
+    version: "0.1.0"

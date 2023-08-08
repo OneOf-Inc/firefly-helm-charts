@@ -278,6 +278,22 @@ plugins:
           urlTemplate: {{ .Values.config.addresssResolverUrlTemplate }}
         {{- end }}
   {{- end }}
+  {{- if .Values.tezosconnect.enabled }}
+    - name: tezos0
+      type: tezos
+      tezos:
+        tezosconnect:
+          {{- if .Values.tezosconnect.enabled }}
+          url: http://{{ include "firefly.fullname" . }}-tezosconnect.{{ .Release.Namespace }}.svc:{{ .Values.tezosconnect.service.port }}
+          {{- end }}
+          topic: {{ .Values.config.tezosconnectTopic | quote }}
+          retry:
+            enable: {{ .Values.config.tezosconnectRetry }}
+        {{- if .Values.config.addresssResolverUrlTemplate }}
+        addressResolver:
+          urlTemplate: {{ .Values.config.addresssResolverUrlTemplate }}
+        {{- end }}
+  {{- end }}
   {{- if .Values.config.fabconnectUrl }}
     - name: fabric0
       type: fabric
